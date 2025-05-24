@@ -12,8 +12,8 @@ public typealias VoidClosure = () -> Void
 public typealias FailureClosure = (Error) -> Void
 
 extension CGFloat {
-    public static let mainHeight: CGFloat = 300
-    public static let mainWidth: CGFloat = 335
+    public static let mainHeight: CGFloat = 330
+    public static let mainWidth: CGFloat = 340
     public static let popoverWidth: CGFloat = 40
     public static let popoverHeight: CGFloat = 210
     public static let popoverRowHeight: CGFloat = 25
@@ -114,7 +114,7 @@ extension Color {
     public static let appWhite = Color(hex: "EEEEEE") ?? .white
     
     public static let appPrimary = Color(lightHex: "555555", darkHex: "EEEEEE")
-    public static let appSecondary = Color(lightHex: "8f8f8f", darkHex: "777777")
+    public static let appSecondary = Color(lightHex: "8f8f8f", darkHex: "9a9d9f")
 
     public static let card = Color(lightHex: "F9F9F9", darkHex: "393939")
 
@@ -198,5 +198,5 @@ public enum Solar {
     public static let daysInWeek = 7
     public static let minYear = 1900, maxYear = 2100
     public static let minMonth = 1, maxMonth = 12
-    public static let minDates = 35, maxDates = 42
+    public static let minDates = 42, maxDates = 42
 }

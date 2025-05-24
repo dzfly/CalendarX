@@ -47,6 +47,13 @@ struct MainScreen: View {
         .equatable()
         .frame(height: .mainHeight, alignment: .top)
         .padding()
+        .transition(.asymmetric(
+            insertion: .move(edge: .trailing),
+            removal: .move(edge: .leading)
+        ))
+        .onAppear {
+            viewModel.date = Date()
+        }
     }
 
     private func title() -> some View {
@@ -59,7 +66,7 @@ struct MainScreen: View {
             if calendarStore.keyboardShortcut {
 
                 KeyboardShortcutButton(key: .leftArrow, action: viewModel.lastMonth)
-                KeyboardShortcutButton(key: .space, action: viewModel.reset)
+                KeyboardShortcutButton(key: .space, action: viewModel.resetToToday)
                 KeyboardShortcutButton(key: .rightArrow, action: viewModel.nextMonth)
                 KeyboardShortcutButton(key: .upArrow, action: viewModel.lastYear)
                 KeyboardShortcutButton(key: .downArrow, action: viewModel.nextYear)
@@ -67,14 +74,52 @@ struct MainScreen: View {
             }
 
             HStack(spacing: calendarStore.showWeekNumbers ? 11.5 : 15.5) {
-
-                ScacleImageButton(image: .leftArrow, action: viewModel.lastMonth)
+                if #available(macOS 12.0, *) {
+                    ScacleImageButton(image: .leftArrow, action: viewModel.lastMonth)
+                        .frame(width: 40)
+                        .background {
+                            Color.red.opacity(0.000000001)
+                            .frame(width: 60, height: 40)
+                        }
+                        .onTapGesture {
+                            viewModel.lastMonth()
+                        }
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .leading).combined(with: .opacity),
+                            removal: .move(edge: .trailing).combined(with: .opacity)
+                        ))
+                } else {
+                    ScacleImageButton(image: .leftArrow, action: viewModel.lastMonth)
+                        .frame(width: 30)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .leading).combined(with: .opacity),
+                            removal: .move(edge: .trailing).combined(with: .opacity)
+                        ))
+                }
+                ScacleImageButton(image: .circle, action: viewModel.resetToToday)
                     .frame(width: 30)
-                ScacleImageButton(image: .circle, action: viewModel.reset)
-                    .frame(width: 30)
-                ScacleImageButton(image: .rightArrow, action: viewModel.nextMonth)
-                    .frame(width: 30)
-
+                if #available(macOS 12.0, *) {
+                    ScacleImageButton(image: .rightArrow, action: viewModel.nextMonth)
+                        .frame(width: 40)
+                        .background {
+                            Color.red.opacity(0.000000001)
+                            .frame(width: 60, height: 40)
+                        }
+                        .onTapGesture {
+                            viewModel.nextMonth()
+                        }
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
+                } else {
+                    ScacleImageButton(image: .rightArrow, action: viewModel.nextMonth)
+                        .frame(width: 30)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
+                }
             }
         }
     }
@@ -140,16 +185,16 @@ struct MainScreen: View {
 
                 VStack {
                     Text(appDate.title)
-                        .font(.title3.monospacedDigit())
+                        .font(.title3.monospacedDigit().weight(.medium))
                         .appForeground(showHolidays ? tiaoxiu.isXiu ? .accentColor : defaultColor : defaultColor)
                     if showLunar {
                         Text(subtitle)
-                            .font(.caption2.weight(.regular))
+                            .font(.caption2.weight(.medium))
                             .appForeground(showHolidays ? tiaoxiu.isXiu ? .accentColor : .appSecondary : .appSecondary)
                     }
                 }
             }
-            .opacity(inSameMonth ? 1 : 0.3)
+            .opacity(inSameMonth ? 1 : 0.5)
             .sideLength(40)
         }
     }

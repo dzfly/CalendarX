@@ -142,7 +142,7 @@ extension LargeWidget {
                     }
                 }
             }
-            .opacity(inSameMonth ? 1 : 0.3)
+            .opacity(inSameMonth ? 1 : 0.5)
             .sideLength(40)
         }
 

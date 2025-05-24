@@ -1,5 +1,10 @@
 [
     {
+        "hex": "#3B4146",
+        "name_en": "light Black",
+        "name_zh": "灰黑色"
+    },
+    {
         "hex": "#323232",
         "name_en": "Charcoal",
         "name_zh": "木炭黑"

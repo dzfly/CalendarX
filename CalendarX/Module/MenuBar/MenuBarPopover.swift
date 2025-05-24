@@ -24,6 +24,7 @@ class MenubarPopover: NSPopover {
         contentViewController = NSHostingController(rootView: rootScreen)
         contentSize = .init(width: .mainWidth, height: .mainHeight)
         shouldHideAnchor()
+        animates = false
     }
 
     required init?(coder aDecoder: NSCoder) {

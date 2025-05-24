@@ -47,23 +47,33 @@ class MainViewModel: ObservableObject {
     }
 
     func lastMonth() {
-        date.lastMonth()
+        withAnimation(.easeInOut(duration: 0.3)) {
+            date.lastMonth()
+        }
     }
 
     func nextMonth() {
-        date.nextMonth()
+        withAnimation(.easeInOut(duration: 0.3)) {
+            date.nextMonth()
+        }
     }
 
     func lastYear() {
-        date.lastYear()
+        withAnimation(.easeInOut(duration: 0.2)) {
+            date.lastYear()
+        }
     }
 
     func nextYear() {
-        date.nextYear()
+        withAnimation(.easeInOut(duration: 0.2)) {
+            date.nextYear()
+        }
     }
 
-    func reset() {
-        date = Date()
+    func resetToToday() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            date = Date()
+        }
     }
 
 }
