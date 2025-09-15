@@ -49,7 +49,6 @@ struct SettingsScreen: View {
                 languageRow
                 memubarRow
                 launchRow
-                recommendRow
                 updateRow
                 aboutRow
             }
@@ -110,11 +109,11 @@ extension SettingsScreen {
 
     }
 
-    var recommendRow: some View {
-        SettingsRow(title: L10n.Settings.recommendations, detail: {}) {
-            router.push(.recommendations)
-        }
-    }
+//    var recommendRow: some View {
+//        SettingsRow(title: L10n.Settings.recommendations, detail: {}) {
+//            router.push(.recommendations)
+//        }
+//    }
 
     var aboutRow: some View {
         SettingsRow(title: L10n.Settings.about, detail: {}) {

@@ -131,7 +131,7 @@ extension Notification.Name {
 }
 
 public enum AppLink {
-    public static let gitHub = "https://github.com/ZzzM/CalendarX"
+    public static let gitHub = "https://github.com/dzfly/CalendarX/"
 }
 
 public enum Privacy {

@@ -70,7 +70,6 @@ extension RootScreen {
         case .calendar: MainScreen(viewModel: mainVM)
         case .settings: SettingsScreen()
         case .date(let appDate, let events, let festivals): DateScreen(appDate: appDate, events: events, festivals: festivals)
-        case .recommendations: RecsScreen()
         case .menubarSettings: MenubarScreen(menubarStore: menubarStore)
         case .appearanceSettings: AppearanceScreen()
         case .calendarSettings: CalendarScreen()

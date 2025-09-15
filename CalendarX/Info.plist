@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppVersionName</key>
-	<string>2.3.6</string>
+	<string>2.3.9</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -18,8 +18,10 @@
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUFeedURL</key>
-	<string>https://zzzm.github.io/CalendarX/appcast.xml</string>
+	<string>https://github.com/dzfly/CalendarX/</string>
 	<key>SUPublicEDKey</key>
-	<string>IqmAL/4PBUY1LejXocSszpdeqxAMQXLi3ydovPOOvvs=</string>
+	<string>9Tm/mN0Y5Q91R5i5+NZz1G/KidrFx+VZK7JpEwnoSGs=</string>
+	<key>CFBundleDisplayName</key>
+	<string>小日历</string>
 </dict>
 </plist>

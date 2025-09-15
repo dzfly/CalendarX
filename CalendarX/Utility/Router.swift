@@ -15,7 +15,7 @@ class Router: ObservableObject {
     enum Screen {
         case calendar
         case date(AppDate, [AppEvent], [String])
-        case settings, recommendations, menubarSettings, appearanceSettings, calendarSettings, update, about
+        case settings, menubarSettings, appearanceSettings, calendarSettings, update, about
         case empty
     }
 
