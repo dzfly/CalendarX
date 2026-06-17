@@ -9,25 +9,19 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Used to display calendar events</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>WidgetConfigurationIntent</string>
 	</array>
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/dzfly/CalendarX/master/appcast.xml</string>
-	<key>SUAutomaticallyUpdate</key>
-	<false/>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
 	<key>SUPublicEDKey</key>
 	<string>BkXqo4YtKku8oj45XwPxfDdn6mnpmhTf94ftOwZz4G0=</string>
-	<key>CFBundleDisplayName</key>
-	<string>小日历</string>
-	<key>CFBundleName</key>
-	<string>小日历</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "98712FA02B2BB15E005163D4"
-               BuildableName = "CalendarX.app"
+               BuildableName = "&#x5c0f;&#x65e5;&#x5386;.app"
                BlueprintName = "CalendarX"
                ReferencedContainer = "container:CalendarX.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "98712FA02B2BB15E005163D4"
-            BuildableName = "CalendarX.app"
+            BuildableName = "&#x5c0f;&#x65e5;&#x5386;.app"
             BlueprintName = "CalendarX"
             ReferencedContainer = "container:CalendarX.xcodeproj">
          </BuildableReference>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "98712FA02B2BB15E005163D4"
-            BuildableName = "CalendarX.app"
+            BuildableName = "&#x5c0f;&#x65e5;&#x5386;.app"
             BlueprintName = "CalendarX"
             ReferencedContainer = "container:CalendarX.xcodeproj">
          </BuildableReference>

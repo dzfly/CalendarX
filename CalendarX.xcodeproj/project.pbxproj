@@ -119,7 +119,7 @@
 		984963412D22A72C0043E919 /* Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		984963432D22A8090043E919 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		984963452D22C2240043E919 /* MenubarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarStore.swift; sourceTree = "<group>"; };
-		98712FA12B2BB15E005163D4 /* CalendarX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalendarX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		98712FA12B2BB15E005163D4 /* 小日历.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "小日历.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		98712FA82B2BB160005163D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		98712FAB2B2BB160005163D4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		98712FAD2B2BB160005163D4 /* CalendarX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarX.entitlements; sourceTree = "<group>"; };
@@ -246,7 +246,7 @@
 		98712FA22B2BB15E005163D4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				98712FA12B2BB15E005163D4 /* CalendarX.app */,
+				98712FA12B2BB15E005163D4 /* 小日历.app */,
 				98712FD12B2BB29B005163D4 /* CalendarXWidget.appex */,
 				981DB9362C08C4BE00AEFFA0 /* CalendarXIntentExtension.appex */,
 			);
@@ -444,7 +444,7 @@
 				9840F8432C9BF1C400826945 /* CalendarXLib */,
 			);
 			productName = CalendarX;
-			productReference = 98712FA12B2BB15E005163D4 /* CalendarX.app */;
+			productReference = 98712FA12B2BB15E005163D4 /* 小日历.app */;
 			productType = "com.apple.product-type.application";
 		};
 		98712FD02B2BB29B005163D4 /* CalendarXWidget */ = {
@@ -674,6 +674,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -687,7 +688,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx.intentExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx.intentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -703,6 +704,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -716,7 +718,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx.intentExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx.intentExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -868,14 +870,17 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"CalendarX/Preview Content\"";
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CalendarX/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "小日历";
+				INFOPLIST_KEY_CFBundleName = "小日历";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Used to display calendar events";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Used to display calendar events";
-				INFOPLIST_KEY_CFBundleName = "小日历";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -883,7 +888,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx;
 				PRODUCT_NAME = "小日历";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -904,14 +909,17 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"CalendarX/Preview Content\"";
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CalendarX/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "小日历";
+				INFOPLIST_KEY_CFBundleName = "小日历";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Used to display calendar events";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Used to display calendar events";
-				INFOPLIST_KEY_CFBundleName = "小日历";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -919,7 +927,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx;
 				PRODUCT_NAME = "小日历";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -937,6 +945,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = YES;
@@ -952,7 +961,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -971,6 +980,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 6S2GK89S4Q;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = YES;
@@ -986,7 +996,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 2.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dd.calendarx.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.little.calendarx.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
