@@ -14,9 +14,9 @@
                        sparkle:version="1"
                        sparkle:shortVersionString="2.4.1"
                        sparkle:minimumSystemVersion="11.0"
-                       length="5053266"
+                       length="5053404"
                        type="application/octet-stream"
-                       sparkle:edSignature="vE67OrMSS4JenR0U/+TrJCm78zrWEpSyvjmSoZmtzvQHybYGuHRv+4GRrQ04CPEijxxcz4fgTUcPAnVBshDGDA==" />
+                       sparkle:edSignature="Y/fZAeExHLmjptWSRe400GuUZrJMjppWpiKfT/73pDLy8KKRAi89rLOXnI9llpupLiT0x0fi9xRmkRZ6c4iuCw==" />
         </item>
     </channel>
 </rss>

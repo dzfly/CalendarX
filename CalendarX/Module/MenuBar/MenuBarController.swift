@@ -169,53 +169,30 @@ extension MenubarController {
     
     private func showContextMenu() {
         let menu = NSMenu()
-        
-        // 检查更新
-        let checkUpdateItem = NSMenuItem(
-            title: "检查更新",
-            action: #selector(checkForUpdates),
-            keyEquivalent: ""
-        )
-        checkUpdateItem.target = self
-        menu.addItem(checkUpdateItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 设置
-        let settingsItem = NSMenuItem(
-            title: "设置",
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        )
+
+        let settingsItem = NSMenuItem(title: "设置", action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
         menu.addItem(settingsItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 关于小日历
-        let aboutItem = NSMenuItem(
-            title: "关于小日历",
-            action: #selector(showAbout),
-            keyEquivalent: ""
-        )
+
+        menu.addItem(.separator())
+
+        let checkUpdateItem = NSMenuItem(title: "检查更新", action: #selector(checkForUpdates), keyEquivalent: "")
+        checkUpdateItem.target = self
+        menu.addItem(checkUpdateItem)
+
+        let aboutItem = NSMenuItem(title: "关于小日历", action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 退出
-        let quitItem = NSMenuItem(
-            title: "退出小日历",
-            action: #selector(quitApp),
-            keyEquivalent: "q"
-        )
+
+        menu.addItem(.separator())
+
+        let quitItem = NSMenuItem(title: "退出小日历", action: #selector(quitApp), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
-        
-        // 显示菜单
-        menubarItem.menu = menu
-        menubarItem.button?.performClick(nil)
-        menubarItem.menu = nil
+
+        guard let button = menubarButton else { return }
+        let origin = NSPoint(x: 0, y: button.bounds.height + 5)
+        menu.popUp(positioning: nil, at: origin, in: button)
     }
     
     @objc private func checkForUpdates() {
