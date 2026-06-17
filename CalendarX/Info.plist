@@ -27,5 +27,7 @@
 	<string>BkXqo4YtKku8oj45XwPxfDdn6mnpmhTf94ftOwZz4G0=</string>
 	<key>CFBundleDisplayName</key>
 	<string>小日历</string>
+	<key>CFBundleName</key>
+	<string>小日历</string>
 </dict>
 </plist>
