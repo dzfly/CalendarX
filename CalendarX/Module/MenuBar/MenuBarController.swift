@@ -28,20 +28,25 @@ class MenubarController {
     private var cancellables: Set<AnyCancellable> = []
 
     private let emptyAttributedString = NSAttributedString()
+    
+    private var updater: Updater?
 
-    init(appStore: AppStore, menubarStore: MenubarStore, popover: MenubarPopover) {
+    init(appStore: AppStore, menubarStore: MenubarStore, popover: MenubarPopover, updater: Updater? = nil) {
         self.appStore = appStore
         self.menubarStore = menubarStore
         self.popover = popover
+        self.updater = updater
         self.schedule = MenubarSchedule(menubarStore: menubarStore)
+        // Use NSStatusBar.system to create a status item (NSStatusItem has no `system` member).
         self.menubarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.menubarButton = menubarItem.button
 
         setupMenubarButton()
         setupMenubarSchedule()
         setupMenubarObservers()
-
-    }
+        setupContextMenu()
+        print("[CalendarX] MenubarController initialized")
+     }
 
 }
 
@@ -49,7 +54,7 @@ extension MenubarController {
 
     private func setupMenubarSchedule() {
         schedule.action = { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             menubarButton?.image = menubarButtonImage
             menubarButton?.attributedTitle = menubarButtonTitle
         }
@@ -87,7 +92,7 @@ extension MenubarController {
         NotificationCenter.default
             .publisher(for: .popoverWillCloseManually)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self = self else { return }
                 popover.close()
             }
             .store(in: &cancellables)
@@ -95,7 +100,7 @@ extension MenubarController {
         NotificationCenter.default
             .publisher(for: .titleStyleDidChanged)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self = self else { return }
                 schedule.action?()
                 schedule.update()
             }
@@ -107,7 +112,7 @@ extension MenubarController {
                     .notifications(named: .NSCalendarDayChanged)
                     .compactMap({ _ in })
                 {
-                    guard let self else { return }
+                    guard let self = self else { return }
                     schedule.action?()
                 }
             }
@@ -115,7 +120,7 @@ extension MenubarController {
             NotificationCenter.default
                 .publisher(for: .NSCalendarDayChanged)
                 .sink { [weak self] _ in
-                    guard let self else { return }
+                    guard let self = self else { return }
                     schedule.action?()
                 }
                 .store(in: &cancellables)
@@ -124,7 +129,7 @@ extension MenubarController {
         NotificationCenter.default
             .publisher(for: NSLocale.currentLocaleDidChangeNotification)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self = self else { return }
                 schedule.action?()
             }
             .store(in: &cancellables)
@@ -132,7 +137,7 @@ extension MenubarController {
         NotificationCenter.default
             .publisher(for: .NSSystemClockDidChange)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self = self else { return }
                 schedule.action?()
                 schedule.update()
             }
@@ -150,7 +155,85 @@ extension MenubarController {
 extension MenubarController {
 
     @objc private func togglePopover(_ sender: Any?) {
-        popover.isShown ? popover.close() : popover.show(sender)
+        let event = NSApp.currentEvent
+        if event?.type == .rightMouseDown {
+            showContextMenu()
+        } else {
+            popover.isShown ? popover.close() : popover.show(sender)
+        }
+    }
+    
+    private func setupContextMenu() {
+        // 右键菜单将通过 togglePopover 中的逻辑处理
+    }
+    
+    private func showContextMenu() {
+        let menu = NSMenu()
+        
+        // 检查更新
+        let checkUpdateItem = NSMenuItem(
+            title: "检查更新",
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        )
+        checkUpdateItem.target = self
+        menu.addItem(checkUpdateItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // 设置
+        let settingsItem = NSMenuItem(
+            title: "设置",
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // 关于小日历
+        let aboutItem = NSMenuItem(
+            title: "关于小日历",
+            action: #selector(showAbout),
+            keyEquivalent: ""
+        )
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // 退出
+        let quitItem = NSMenuItem(
+            title: "退出小日历",
+            action: #selector(quitApp),
+            keyEquivalent: "q"
+        )
+        quitItem.target = self
+        menu.addItem(quitItem)
+        
+        // 显示菜单
+        menubarItem.menu = menu
+        menubarItem.button?.performClick(nil)
+        menubarItem.menu = nil
+    }
+    
+    @objc private func checkForUpdates() {
+        updater?.checkForUpdates()
+    }
+    
+    @objc private func openSettings() {
+        guard let button = menubarButton else { return }
+        popover.show(button, screen: .settings)
+    }
+
+    @objc private func showAbout() {
+        guard let button = menubarButton else { return }
+        popover.show(button, screen: .about)
+    }
+    
+    @objc private func quitApp() {
+        NSApplication.shared.terminate(nil)
     }
 
 }

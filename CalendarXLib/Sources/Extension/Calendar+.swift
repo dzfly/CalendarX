@@ -63,10 +63,24 @@ extension AppEventStore {
 
     
     private var allowFullAccessToEvents: Bool {
+        // authorizationStatus(for:) may require being called on the main thread on some macOS versions.
+        // Call it on the main thread if we're currently off it to avoid crashes.
+        let status: AppAuthorizationStatus = {
+            if Thread.isMainThread {
+                return Self.authorizationStatus(for: .event)
+            } else {
+                var s: AppAuthorizationStatus! = nil
+                DispatchQueue.main.sync {
+                    s = Self.authorizationStatus(for: .event)
+                }
+                return s
+            }
+        }()
+
         if #available(macOS 14.0, *) {
-            Self.authorizationStatus(for: .event) == .fullAccess
+            return status == .fullAccess
         } else {
-            Self.authorizationStatus(for: .event) == .authorized
+            return status == .authorized
         }
     }
 

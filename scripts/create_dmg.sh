@@ -41,5 +41,14 @@ function generate_changlog() {
     echo $(__sparkle_enclosure) >> $LOG_PATH
 }
 
+function update_appcast() {
+    if [ -f "./bin/generate_appcast" ]; then
+        echo "更新 appcast.xml..."
+        ./bin/generate_appcast ./releases/
+    else
+        echo "警告: generate_appcast 工具未找到，请手动更新 appcast.xml"
+    fi
+}
+
 create_dmg
 generate_changlog

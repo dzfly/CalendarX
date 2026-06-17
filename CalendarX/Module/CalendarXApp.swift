@@ -38,42 +38,48 @@ class CalendarXDelegate: NSObject & NSApplicationDelegate {
             .forEach { $0.terminate() }
     }
 
+    // Use a synchronous delegate method (AppKit won't call the async variant).
     func applicationDidFinishLaunching(_ notification: Notification) {
-
-        let appStore = AppStore()
-        let menubarStore = MenubarStore()
-        let calendarStore = CalendarStore()
-        let router = Router()
-        let dialog = Dialog()
-        let authorizer = Authorizer()
-        let updater = Updater(appStore: appStore)
-        
-        bootstrap(calendarStore: calendarStore, authorizer: authorizer, updater: updater)
-        
-        let rootScreen = RootScreen(updater: updater)
-            .environment(\.authorizer, authorizer)
-            .environmentObject(appStore)
-            .environmentObject(menubarStore)
-            .environmentObject(calendarStore)
-            .environmentObject(router)
-            .environmentObject(dialog)
-        let popover = MenubarPopover(router, rootScreen: rootScreen)
-        
-        menubarController = MenubarController(appStore: appStore, menubarStore: menubarStore, popover: popover)
-
+        print("[CalendarX] applicationDidFinishLaunching called")
+        Task { @MainActor in
+            print("[CalendarX] bootstrap begin")
+            let appStore = AppStore()
+            let menubarStore = MenubarStore()
+            let calendarStore = CalendarStore()
+            let router = Router()
+            let dialog = Dialog()
+            let authorizer = Authorizer()
+            let updater = Updater(appStore: appStore)
+            
+            await bootstrap(calendarStore: calendarStore, authorizer: authorizer, updater: updater)
+            print("[CalendarX] bootstrap end")
+            
+            let rootScreen = RootScreen(updater: updater)
+                .environment(\.authorizer, authorizer)
+                .environmentObject(appStore)
+                .environmentObject(menubarStore)
+                .environmentObject(calendarStore)
+                .environmentObject(router)
+                .environmentObject(dialog)
+            let popover = MenubarPopover(router, rootScreen: rootScreen)
+            
+            print("[CalendarX] creating MenubarController")
+            menubarController = MenubarController(appStore: appStore, menubarStore: menubarStore, popover: popover, updater: updater)
+            print("[CalendarX] menubarController assigned")
+        }
     }
 }
 
 
 extension CalendarXDelegate {
     
-    private func bootstrap(calendarStore: CalendarStore, authorizer: Authorizer, updater: Updater) {
-        resolveEventsAuthorization(authorizer: authorizer, calendarStore: calendarStore)
+    private func bootstrap(calendarStore: CalendarStore, authorizer: Authorizer, updater: Updater) async {
+        await resolveEventsAuthorization(authorizer: authorizer, calendarStore: calendarStore)
         resolveNotificationsAuthorization(authorizer: authorizer, updater: updater)
-
+        Task { await HolidayService.shared.refreshIfNeeded() }
     }
     
-    private func resolveEventsAuthorization(authorizer: Authorizer, calendarStore: CalendarStore) {
+    private func resolveEventsAuthorization(authorizer: Authorizer, calendarStore: CalendarStore) async {
         WidgetCenter.shared.reloadAllTimelines()
         if authorizer.allowFullAccessToEvents { return }
         if calendarStore.showEvents { calendarStore.showEvents.toggle() }

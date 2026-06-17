@@ -69,12 +69,18 @@ extension CalendarScreen {
         let isOn = Binding {
             calendarStore.showEvents
         } set: { value in
-            switch authorizer.eventsStatus {
-            case .notRequested: Task { calendarStore.showEvents = await authorizer.requestEventsAuthorization() }
-            case .granted: calendarStore.showEvents = value
-            default:
-                dialog.popup(.calendars) {
-                    router.preference(Privacy.calendars)
+            Task { @MainActor in
+                let status = authorizer.eventsStatus
+                switch status {
+                case .notRequested:
+                    let granted = await authorizer.requestEventsAuthorization()
+                    calendarStore.showEvents = granted
+                case .granted:
+                    calendarStore.showEvents = value
+                default:
+                    dialog.popup(.calendars) {
+                        router.preference(Privacy.calendars)
+                    }
                 }
             }
         }

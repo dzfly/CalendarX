@@ -58,3 +58,9 @@
 "updater.auto" = "自动检查更新";
 "updater.version" = "版本";
 "updater.build" = "构建号";
+"updater.appName" = "应用名称";
+"updater.lastCheck" = "上次检查";
+"updater.checking" = "检查中...";
+"updater.updateAvailable" = "发现新版本";
+"updater.noUpdateAvailable" = "已是最新版本";
+"updater.checkInterval" = "每24小时自动检查一次更新";

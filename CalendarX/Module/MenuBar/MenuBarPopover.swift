@@ -34,7 +34,11 @@ class MenubarPopover: NSPopover {
     func show(_ sender: Any?) {
         guard let button = sender as? NSStatusBarButton else { return }
         guard let event = NSApp.currentEvent else { return }
-        router.set(event.isRightClicked ? .settings : .calendar)
+        show(button, screen: event.isRightClicked ? .settings : .calendar)
+    }
+
+    func show(_ button: NSStatusBarButton, screen: Router.Screen) {
+        router.set(screen)
         show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         contentViewController?.view.window?.becomeKey()
         startEventMonitor()
@@ -53,7 +57,7 @@ extension MenubarPopover {
 
     func startEventMonitor() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
             guard isShown else { return }
             close()
         }

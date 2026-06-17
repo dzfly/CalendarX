@@ -47,12 +47,18 @@ extension Authorizer {
 
 extension Authorizer {
     
+    // Make these async to ensure callers await the MainActor and avoid runtime precondition failures
+    // These run on the MainActor; provide synchronous getters to avoid async crossing issues.
     var eventsStatus: Status {
         AppEventStore.authorizationStatus(for: .event).map
     }
 
     var allowFullAccessToEvents: Bool {
-        eventsStatus == .granted
+        if #available(macOS 14.0, *) {
+            return AppEventStore.authorizationStatus(for: .event) == .fullAccess
+        } else {
+            return AppEventStore.authorizationStatus(for: .event) == .authorized
+        }
     }
 
     func requestEventsAuthorization() async -> Bool {

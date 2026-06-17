@@ -42,10 +42,32 @@ class Updater: NSObject {
         super.init()
         updaterController.startUpdater()
         UNUserNotificationCenter.current().delegate = self
+        
+        // 配置更新检查间隔（24小时）
+        updaterController.updater.updateCheckInterval = 86400
+        
+        // 请求通知权限
+        requestNotificationPermission()
+    }
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("通知权限请求失败: \(error)")
+            }
+        }
     }
 
     func checkForUpdates() {
         updaterController.checkForUpdates(.none)
+    }
+    
+    func checkForUpdatesInBackground() {
+        updaterController.updater.checkForUpdatesInBackground()
+    }
+    
+    var canCheckForUpdates: Bool {
+        updaterController.updater.canCheckForUpdates
     }
 }
 
@@ -100,8 +122,9 @@ extension Updater: @preconcurrency UNUserNotificationCenterDelegate {
         guard response.notification.request.identifier == UpdateNotificationId else { return }
         guard response.actionIdentifier == UNNotificationDefaultActionIdentifier else { return }
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             checkForUpdates()
         }
     }
+
 }

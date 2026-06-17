@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppVersionName</key>
-	<string>2.3.9</string>
+	<string>2.4.1</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -16,11 +16,15 @@
 		<string>WidgetConfigurationIntent</string>
 	</array>
 	<key>SUEnableAutomaticChecks</key>
-	<false/>
+	<true/>
 	<key>SUFeedURL</key>
-	<string>https://github.com/dzfly/CalendarX/</string>
+	<string>https://raw.githubusercontent.com/dzfly/CalendarX/master/appcast.xml</string>
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 	<key>SUPublicEDKey</key>
-	<string>9Tm/mN0Y5Q91R5i5+NZz1G/KidrFx+VZK7JpEwnoSGs=</string>
+	<string>BkXqo4YtKku8oj45XwPxfDdn6mnpmhTf94ftOwZz4G0=</string>
 	<key>CFBundleDisplayName</key>
 	<string>小日历</string>
 </dict>

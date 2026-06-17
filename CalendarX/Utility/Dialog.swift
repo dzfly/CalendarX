@@ -75,7 +75,7 @@ class Dialog: ObservableObject {
         NotificationCenter.default
             .publisher(for: NSPopover.didCloseNotification)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self = self else { return }
                 dismiss()
             }
             .store(in: &cancellables)
@@ -83,7 +83,7 @@ class Dialog: ObservableObject {
 
     func dismiss() {
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             withAnimation { isPresented = false }
         }
     }
@@ -91,7 +91,7 @@ class Dialog: ObservableObject {
     func popup(_ action: Action, handler: VoidClosure? = .none) {
 
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             self.action = action
             self.handler = handler
             withAnimation { isPresented = true }

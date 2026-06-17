@@ -17,7 +17,7 @@ struct AboutScreen: View {
     var body: some View {
         VStack {
             TitleView {
-                Text(L10n.Settings.about)
+                Text("小日历")
             } leftItems: {
                 ScacleImageButton(image: .backward) {
                     router.pop()
@@ -41,9 +41,6 @@ struct AboutScreen: View {
             .appForeground(.appSecondary)
 
             Spacer()
-            Text(Bundle.copyright)
-                .font(.footnote)
-                .appForeground(.appSecondary)
         }
         .frame(height: .mainHeight, alignment: .top)
         .padding()

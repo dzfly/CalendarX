@@ -60,3 +60,9 @@
 "updater.auto" = "Automatically checks for updates";
 "updater.version" = "Version";
 "updater.build" = "Build";
+"updater.appName" = "App Name";
+"updater.lastCheck" = "Last Check";
+"updater.checking" = "Checking...";
+"updater.updateAvailable" = "Update Available";
+"updater.noUpdateAvailable" = "Up to Date";
+"updater.checkInterval" = "Automatically checks for updates every 24 hours";

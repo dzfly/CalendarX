@@ -31,14 +31,14 @@ class MenubarSchedule {
     }
 
     private func suspend() {
-        guard let task else { return }
+        guard let task = task else { return }
         guard task.suspensionCount == 0 else { return }
         task.suspend()
     }
 
     private func resume() {
         task = plan.do { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             action?()
         }
     }

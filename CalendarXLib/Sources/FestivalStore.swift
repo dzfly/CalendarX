@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-public enum Tiaoxiu: Int, Decodable {
+public enum Tiaoxiu: Int, Codable {
 
     //    0,1,2
     case ordinary, ban, xiu
@@ -47,10 +47,10 @@ public struct FestivalStore {
     }
 
     @MainActor
-    enum Solar {
+    public enum Solar {
         static let all = Bundle.module.jsonModel(resource: "festival_solar_all") ?? TypeB()
         static let primary = Bundle.module.jsonModel(resource: "festival_solar_primary") ?? TypeA()
-        static let tiaoxiu = Bundle.module.jsonModel(resource: "festival_solar_tiaoxiu") ?? TypeC()
+        static var tiaoxiu: TypeC = HolidayService.shared.loadCached()
     }
 
     @MainActor

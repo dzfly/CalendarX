@@ -33,7 +33,7 @@ class MainViewModel: ObservableObject {
                     .notifications(named: .NSCalendarDayChanged)
                     .compactMap({ _ in Date() })
                 {
-                    guard let self else { return }
+                    guard let self = self else { return }
                     date = value
                 }
             }
@@ -77,4 +77,3 @@ class MainViewModel: ObservableObject {
     }
 
 }
-

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>CalendarX Changelog</title>
+        <link>https://raw.githubusercontent.com/dzfly/CalendarX/master/appcast.xml</link>
+        <description>Most recent changes with links to updates.</description>
+        <language>en</language>
+
+        <item>
+            <title>Version 2.4.1</title>
+            <sparkle:releaseNotesLink>https://github.com/dzfly/CalendarX/releases/tag/v2.4.1</sparkle:releaseNotesLink>
+            <pubDate>Tue, 17 Jun 2025 17:00:00 +0800</pubDate>
+            <enclosure url="https://github.com/dzfly/CalendarX/releases/download/v2.4.1/CalendarX.dmg"
+                       sparkle:version="1"
+                       sparkle:shortVersionString="2.4.1"
+                       sparkle:minimumSystemVersion="11.0"
+                       length="5053266"
+                       type="application/octet-stream"
+                       sparkle:edSignature="vE67OrMSS4JenR0U/+TrJCm78zrWEpSyvjmSoZmtzvQHybYGuHRv+4GRrQ04CPEijxxcz4fgTUcPAnVBshDGDA==" />
+        </item>
+    </channel>
+</rss>

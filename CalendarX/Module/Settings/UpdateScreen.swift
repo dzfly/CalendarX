@@ -35,6 +35,11 @@ struct UpdateScreen: View {
         }
     }
 
+    @State
+    private var isCheckingForUpdates = false
+
+    @State
+    private var lastCheckDate: Date?
 
     init(updater: Updater) {
         self.automaticallyChecksForUpdates = updater.automaticallyChecksForUpdates
@@ -53,26 +58,43 @@ struct UpdateScreen: View {
             } rightItems: {
                 EmptyView()
             }
+            
             Section {
                 checkRow
                 betaRow
+                Divider()
+                appNameRow
                 versionRow
                 buildRow
                 osRow
+                if let lastCheck = lastCheckDate {
+                    lastCheckRow(date: lastCheck)
+                }
             }
 
             ScacleCapsuleButton(
-                title: L10n.Updater.checkForUpdates,
+                title: isCheckingForUpdates ? "检查中..." : L10n.Updater.checkForUpdates,
                 foregroundColor: .appWhite,
-                backgroundColor: .accentColor
+                backgroundColor: isCheckingForUpdates ? .gray : .accentColor
             ) {
-                updater.checkForUpdates()
+                checkForUpdates()
             }
-
+            .disabled(isCheckingForUpdates || !updater.canCheckForUpdates)
 
         }
         .frame(height: .mainHeight, alignment: .top)
         .padding()
+    }
+    
+    private func checkForUpdates() {
+        isCheckingForUpdates = true
+        lastCheckDate = Date()
+        
+        // 延迟一下以显示加载状态
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            updater.checkForUpdates()
+            isCheckingForUpdates = false
+        }
     }
 }
 
@@ -123,8 +145,16 @@ extension UpdateScreen {
         .checkboxStyle()
     }
 
-    
-
+    private var appNameRow: some View {
+        SettingsRow(
+            title: "应用名称",
+            showArrow: false,
+            detail: {
+                Text("小日历")
+            },
+            action: {}
+        )
+    }
 
     private var versionRow: some View {
         SettingsRow(
@@ -158,5 +188,24 @@ extension UpdateScreen {
             },
             action: {}
         )
+    }
+    
+    private func lastCheckRow(date: Date) -> some View {
+        SettingsRow(
+            title: "上次检查",
+            showArrow: false,
+            detail: {
+                Text(date, formatter: dateFormatter)
+            },
+            action: {}
+        )
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.locale = Locale(identifier: "zh_CN")
+        return formatter
     }
 }
