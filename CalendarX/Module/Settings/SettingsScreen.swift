@@ -25,7 +25,7 @@ struct SettingsScreen: View {
 
     var body: some View {
 
-        let spacing: CGFloat = if #available(macOS 13.0, *) { 15 } else { 20 }
+        let spacing: CGFloat = if #available(macOS 13.0, *) { 10 } else { 16 }
 
         VStack(spacing: spacing) {
             TitleView {
@@ -62,9 +62,12 @@ struct SettingsScreen: View {
 
 extension SettingsScreen {
     var appearanceRow: some View {
-        SettingsRow(title: L10n.Settings.appearance, detail: {}) {
-            router.push(.appearanceSettings)
-        }
+        SettingsPickerRow(
+            title: L10n.Settings.appearance,
+            items: Theme.allCases,
+            selection: $appStore.theme,
+            itemLabel: { Text($0.title) }
+        )
     }
 
     var calendarRow: some View {
@@ -77,9 +80,9 @@ extension SettingsScreen {
         SettingsPickerRow(
             title: L10n.Settings.language,
             items: Language.allCases,
-            width: 70,
-            selection: $appStore.language
-        ) { Text($0.title) }
+            selection: $appStore.language,
+            itemLabel: { Text(languageTitle($0)) }
+        )
     }
 
     var memubarRow: some View {
@@ -118,6 +121,15 @@ extension SettingsScreen {
     var aboutRow: some View {
         SettingsRow(title: L10n.Settings.about, detail: {}) {
             router.push(.about)
+        }
+    }
+
+    func languageTitle(_ language: Language) -> String {
+        switch language {
+        case .zh_CN: "简体中文"
+        case .en_US: "English"
+        case .system:
+            Bundle.main.localizedString(forKey: "theme.system", value: "跟随系统", table: nil)
         }
     }
 }
@@ -165,7 +177,7 @@ struct SettingsRow<Content: View>: View {
 }
 
 struct SettingsPickerRow<Item: Hashable, Label: View>: View {
-    let title: LocalizedStringKey, items: [Item], width: CGFloat
+    let title: LocalizedStringKey, items: [Item]
 
     @Binding
     var selection: Item
@@ -173,22 +185,14 @@ struct SettingsPickerRow<Item: Hashable, Label: View>: View {
     @ViewBuilder
     let itemLabel: (Item) -> Label
 
-    @State
-    private var isPresented = false
-
-    @EnvironmentObject
-    private var appStore: AppStore
-
     init(
         title: LocalizedStringKey,
         items: [Item],
-        width: CGFloat = .popoverWidth,
         selection: Binding<Item>,
         @ViewBuilder itemLabel: @escaping (Item) -> Label
     ) {
         self.title = title
         self.items = items
-        self.width = width
         self._selection = selection
         self.itemLabel = itemLabel
     }
@@ -197,20 +201,16 @@ struct SettingsPickerRow<Item: Hashable, Label: View>: View {
         HStack {
             Text(title).font(.title3)
             Spacer()
-            ScacleButtonPicker(
-                items: items,
-                tint: appStore.accentColor,
-                width: width,
-                selection: $selection,
-                isPresented: $isPresented,
-                label: {
-                    HStack {
-                        itemLabel(selection).appForeground(.appSecondary)
-                        RotationArrow(isPresented: $isPresented)
-                    }
-                },
-                itemLabel: itemLabel
-            )
+            Picker(selection: $selection) {
+                ForEach(items, id: \.self) { item in
+                    itemLabel(item).tag(item)
+                }
+            } label: {
+                Text(title)
+            }
+            .pickerStyle(.menu)
+            .labelsHidden()
+            .fixedSize()
         }
     }
 }

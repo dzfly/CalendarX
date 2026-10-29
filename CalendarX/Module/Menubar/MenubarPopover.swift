@@ -23,6 +23,7 @@ class MenubarPopover: NSPopover {
         super.init()
         contentViewController = NSHostingController(rootView: rootScreen)
         contentSize = .init(width: .mainWidth, height: .mainHeight)
+        behavior = .applicationDefined
         shouldHideAnchor()
         animates = false
     }
@@ -39,13 +40,16 @@ class MenubarPopover: NSPopover {
 
     func show(_ button: NSStatusBarButton, screen: Router.Screen) {
         router.set(screen)
+        if case .calendar = screen {} else {
+            contentSize.height = .mainHeight
+        }
         show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        revealSystemGlass()
         contentViewController?.view.window?.becomeKey()
         startEventMonitor()
     }
 
     override func close() {
-        router.set(.empty)
         super.close()
         contentViewController?.view.window?.resignKey()
         stopEventMonitor()
@@ -72,6 +76,18 @@ extension MenubarPopover {
 
 extension MenubarPopover {
 
+    private func revealSystemGlass() {
+        guard #available(macOS 26.0, *) else { return }
+        guard let hosting = contentViewController?.view else { return }
+        let windowContent = hosting.window?.contentView
+        var view: NSView? = hosting
+        while let current = view, current !== windowContent {
+            current.wantsLayer = true
+            current.layer?.backgroundColor = NSColor.clear.cgColor
+            view = current.superview
+        }
+    }
+
     private func shouldHideAnchor() {
         if value(forKey: privateKey) is String {
             return
@@ -83,4 +99,24 @@ extension MenubarPopover {
         key == privateKey ? key : .none
     }
 
+}
+
+@MainActor
+final class PopoverResizer {
+    var apply: ((CGFloat) -> Void)?
+
+    func setHeight(_ height: CGFloat) {
+        apply?(height)
+    }
+}
+
+private struct PopoverResizerKey: EnvironmentKey {
+    static let defaultValue: PopoverResizer? = nil
+}
+
+extension EnvironmentValues {
+    var popoverResizer: PopoverResizer? {
+        get { self[PopoverResizerKey.self] }
+        set { self[PopoverResizerKey.self] = newValue }
+    }
 }

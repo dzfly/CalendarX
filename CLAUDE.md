@@ -20,7 +20,7 @@ scripts/create_dmg.sh
 ```
 
 - **Xcode project**: `CalendarX.xcodeproj` (not SPM-based at root level)
-- **Deployment target**: macOS 11.0+
+- **Deployment target**: macOS 12.0+
 - **Swift version**: 6.0 (strict concurrency enabled)
 - **Bundle ID**: `com.dd.calendarx`
 
@@ -53,7 +53,7 @@ All stores use `@MainActor` and `ObservableObject`. Injected as `@EnvironmentObj
 
 ### CalendarXLib (Shared Package)
 
-Located at `CalendarXLib/`, swift-tools-version 5.9, targets macOS 11+.
+Located at `CalendarXLib/`, swift-tools-version 5.9, targets macOS 12+.
 
 Key contents:
 - `Model/AppDate.swift` — type aliases mapping to EventKit types (`AppDate = Date`, `AppEvent = EKEvent`)

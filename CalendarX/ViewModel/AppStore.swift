@@ -14,17 +14,14 @@ class AppStore: ObservableObject {
     @AppStorage(AppStorageKey.theme, store: .group)
     var theme: Theme = .system
 
-    @AppStorage(AppStorageKey.appearance, store: .group)
-    var appearance: Appearance = .default
-
     @AppStorage(AppStorageKey.language, store: .group)
     var language: Language = .system
 }
 
 
 extension AppStore {
-    var accentColor: Color { appearance.accentColor }
-    var backgroundColor: Color { appearance.backgroundColor }
+    var accentColor: Color { Appearance.default.accentColor }
+    var backgroundColor: Color { Appearance.default.backgroundColor }
 
     var colorScheme: ColorScheme? { theme.colorScheme }
     var locale: Locale { language.locale }

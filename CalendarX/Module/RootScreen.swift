@@ -1,3 +1,4 @@
+import AppKit
 import CalendarXLib
 import SwiftUI
 
@@ -17,6 +18,9 @@ struct RootScreen: View {
     @EnvironmentObject
     private var menubarStore: MenubarStore
 
+    @Environment(\.popoverResizer)
+    private var popoverResizer
+
     private let updater: Updater
 
     private let mainVM = MainViewModel()
@@ -35,11 +39,26 @@ struct RootScreen: View {
             dialogScreen
 
         }
+        .frame(width: .mainWidth)
         .appForeground(.appPrimary)
         .preferredLocale(appStore.locale)
         .envTint(appStore.accentColor)
         .envColorScheme(appStore.colorScheme)
         .onChange(of: appStore.locale, notification: NSLocale.currentLocaleDidChangeNotification)
+        .onAppear { syncPopoverHeight() }
+        .onReceive(router.$path.receive(on: RunLoop.main)) { _ in syncPopoverHeight() }
+        .onReceive(mainVM.$date.receive(on: RunLoop.main)) { _ in syncPopoverHeight() }
+    }
+
+    private func syncPopoverHeight() {
+        let height: CGFloat = if case .calendar = router.root, router.path.count == 1 {
+            calendarPopoverHeight(date: mainVM.date, firstWeekday: calendarStore.weekday.rawValue)
+        } else if router.path.isEmpty {
+            calendarPopoverHeight(date: mainVM.date, firstWeekday: calendarStore.weekday.rawValue)
+        } else {
+            .mainHeight
+        }
+        popoverResizer?.setHeight(height)
     }
 
 }
@@ -55,14 +74,33 @@ extension RootScreen {
         }
     }
 
+    private var panelFill: Color {
+        if #available(macOS 26, *) {
+            appStore.backgroundColor.opacity(0.6)
+        } else {
+            appStore.backgroundColor
+        }
+    }
+
     @ViewBuilder
-    private var background: some View { appStore.backgroundColor.padding(.top, -15) }
+    private var background: some View {
+        panelFill
+            .padding(.top, -15)
+            .background {
+                if #available(macOS 26, *) {
+                    PopoverAppearance(colorScheme: appStore.colorScheme)
+                }
+            }
+    }
 
     @ViewBuilder
     private var baseScreen: some View { screen(from: router.root) }
 
     @ViewBuilder
-    private var topScreen: some View { screen(from: router.top).fullScreenCover(appStore.backgroundColor) }
+    private var topScreen: some View {
+        screen(from: router.top)
+            .fullScreenCover(appStore.backgroundColor.opacity(0.94))
+    }
 
     @ViewBuilder
     private func screen(from path: Router.Screen) -> some View {
@@ -131,5 +169,40 @@ extension RootScreen {
             }
         }
         .zIndex(1)
+    }
+}
+
+private struct PopoverAppearance: NSViewRepresentable {
+    var colorScheme: ColorScheme?
+
+    func makeNSView(context: Context) -> PopoverAppearanceView {
+        let view = PopoverAppearanceView()
+        view.colorScheme = colorScheme
+        return view
+    }
+
+    func updateNSView(_ view: PopoverAppearanceView, context: Context) {
+        view.colorScheme = colorScheme
+        view.apply()
+    }
+}
+
+private final class PopoverAppearanceView: NSView {
+    var colorScheme: ColorScheme?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        apply()
+    }
+
+    func apply() {
+        guard let window else { return }
+        let name: NSAppearance.Name = switch colorScheme {
+        case .dark: .darkAqua
+        case .light: .aqua
+        default:
+            NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .darkAqua : .aqua
+        }
+        window.appearance = NSAppearance(named: name)
     }
 }

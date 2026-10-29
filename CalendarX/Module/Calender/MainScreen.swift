@@ -5,8 +5,20 @@
 //  Created by zm on 2022/1/26.
 //
 
+import Algorithms
+import AppKit
 import CalendarXLib
 import SwiftUI
+
+func calendarPopoverHeight(date: Date, firstWeekday: Int) -> CGFloat {
+    var calendar = Calendar.gregorian
+    calendar.firstWeekday = firstWeekday
+    let count = calendar.generateDates(for: date).count
+    let weeks = max(count / Solar.daysInWeek, 1)
+    let spacing: CGFloat = count > Solar.minDates ? 0.5 : 8.5
+    let grid = 30 + CGFloat(weeks) * 40 + CGFloat(weeks) * spacing
+    return 36 + 12 + grid + 16 + 20
+}
 
 struct MainScreen: View {
 
@@ -44,9 +56,8 @@ struct MainScreen: View {
             leading: leading,
             element: element
         )
-        .equatable()
-        .frame(height: .mainHeight, alignment: .top)
-        .padding()
+        .padding(.top, 16)
+        .padding(.bottom, 20)
         .transition(.asymmetric(
             insertion: .move(edge: .trailing),
             removal: .move(edge: .leading)
@@ -57,26 +68,31 @@ struct MainScreen: View {
     }
 
     private func title() -> some View {
-        HStack {
+        HStack(spacing: 0) {
             MonthYearPicker(date: $viewModel.date, tint: appStore.accentColor)
                 .focusDisabled()
 
-            Spacer()
+            Spacer(minLength: 24)
 
             if calendarStore.keyboardShortcut {
 
                 KeyboardShortcutButton(key: .leftArrow, action: viewModel.lastMonth)
+                    .frame(width: 0, height: 0)
                 KeyboardShortcutButton(key: .space, action: viewModel.resetToToday)
+                    .frame(width: 0, height: 0)
                 KeyboardShortcutButton(key: .rightArrow, action: viewModel.nextMonth)
+                    .frame(width: 0, height: 0)
                 KeyboardShortcutButton(key: .upArrow, action: viewModel.lastYear)
+                    .frame(width: 0, height: 0)
                 KeyboardShortcutButton(key: .downArrow, action: viewModel.nextYear)
+                    .frame(width: 0, height: 0)
 
             }
 
-            HStack(spacing: calendarStore.showWeekNumbers ? 11.5 : 15.5) {
+            HStack(spacing: 8) {
                 if #available(macOS 12.0, *) {
                     ScacleImageButton(image: .leftArrow, action: viewModel.lastMonth)
-                        .frame(width: 40)
+                        .frame(width: 32)
                         .background {
                             Color.red.opacity(0.000000001)
                             .frame(width: 60, height: 40)
@@ -100,7 +116,7 @@ struct MainScreen: View {
                     .frame(width: 30)
                 if #available(macOS 12.0, *) {
                     ScacleImageButton(image: .rightArrow, action: viewModel.nextMonth)
-                        .frame(width: 40)
+                        .frame(width: 32)
                         .background {
                             Color.red.opacity(0.000000001)
                             .frame(width: 60, height: 40)
@@ -147,7 +163,7 @@ struct MainScreen: View {
     }
 
     @ViewBuilder
-    private func element(_ appDate: AppDate, events: [AppEvent]) -> some View {
+    private func element(_ appDate: AppDate, events: [AppEvent], month: Date) -> some View {
 
         let tiaoxiu = festivalStore.tiaoxiu(date: appDate)
         let tiaoxiuColor: Color = tiaoxiu.isXiu ? .offBackground : .workBackground
@@ -155,8 +171,8 @@ struct MainScreen: View {
         let showHolidays = !tiaoxiu.isOrdinary && calendarStore.showHolidays
         let showEvents = events.isNotEmpty && calendarStore.showEvents
         let showLunar = calendarStore.showLunar
-        let defaultColor: Color = appDate.inWeekend ? .appSecondary : .appPrimary
-        let inSameMonth = viewModel.date.inSameMonth(as: appDate)
+        let defaultColor: Color = appDate.inWeekend ? .appSecondary.opacity(0.75) : .appPrimary
+        let inSameMonth = month.inSameMonth(as: appDate)
 
         ScacleButton {
             let festivals = festivalStore.all(date: appDate)
@@ -171,8 +187,10 @@ struct MainScreen: View {
                 if showHolidays {
                     tiaoxiuColor.clipShape(.rect(cornerRadius: 4))
                     Text(tiaoxiu.description)
-                        .font(.system(size: 7, weight: .bold, design: .monospaced))
-                        .offset(x: -14, y: -14)
+                        .font(.system(size: 8, weight: .bold))
+                        .padding(.leading, 3)
+                        .padding(.top, 2)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                         .appForeground(tiaoxiu.isXiu ? .accentColor : .appSecondary)
                 }
 
@@ -194,7 +212,7 @@ struct MainScreen: View {
                     }
                 }
             }
-            .opacity(inSameMonth ? 1 : 0.5)
+            .opacity(inSameMonth ? 1 : 0.72)
             .sideLength(40)
         }
     }
@@ -210,34 +228,44 @@ struct MonthYearPicker: View {
 
     let tint: Color
 
-    @State
-    private var isPresentedOfMonth = false
-
-    @State
-    private var isPresentedOfYear = false
-
     var body: some View {
-        ScacleButtonPicker(
-            items: Array(Solar.minMonth...Solar.maxMonth),
-            tint: tint,
-            selection: $date.month,
-            isPresented: $isPresentedOfMonth
-        ) {
-            Text(date.monthSymbol(locale: locale)).font(.title2).appForeground(tint)
-        } itemLabel: {
-            Text(date.monthSymbol(index: $0, locale: locale))
+        HStack(spacing: 4) {
+            AppMenuButton(
+                titles: monthItems.map(\.title),
+                selection: monthItems.firstIndex { $0.tag == date.month } ?? 0,
+                tint: tint
+            ) { index in
+                guard monthItems.indices.contains(index) else { return }
+                date.month = monthItems[index].tag
+            }
+            .fixedSize()
+            AppMenuButton(
+                titles: yearItems.map(\.title),
+                selection: yearItems.firstIndex { $0.tag == date.year } ?? 0,
+                tint: tint
+            ) { index in
+                guard yearItems.indices.contains(index) else { return }
+                date.year = yearItems[index].tag
+            }
+            .fixedSize()
         }
+    }
 
-        ScacleButtonPicker(
-            items: Array(Solar.minYear...Solar.maxYear),
-            tint: tint,
-            selection: $date.year,
-            isPresented: $isPresentedOfYear
-        ) {
-            Text(date.year.description).font(.title2).appForeground(tint)
-        } itemLabel: {
-            Text(String($0))
-        }
+    private var monthItems: [(tag: Int, title: String)] {
+        (Solar.minMonth...Solar.maxMonth).map { (tag: $0, title: monthTitle($0)) }
+    }
+
+    private var yearItems: [(tag: Int, title: String)] {
+        (Solar.minYear...Solar.maxYear).map { (tag: $0, title: String($0)) }
+    }
+
+    private func monthTitle(_ month: Int) -> String {
+        var calendar = Calendar.gregorian
+        calendar.locale = locale
+        let symbols = calendar.shortMonthSymbols
+        let index = month - 1
+        guard symbols.indices.contains(index) else { return String(month) }
+        return symbols[index]
     }
 }
 
@@ -250,7 +278,7 @@ struct CalendarView<Title: View, Subtitle: View, Leading: View, Element: View>: 
     private let title: () -> Title
     private let subtitle: ([AppDate]) -> Subtitle
     private let leading: ([AppDate], CGFloat) -> Leading
-    private let element: (AppDate, [AppEvent]) -> Element
+    private let element: (AppDate, [AppEvent], Date) -> Element
 
     init(
         date: AppDate,
@@ -261,7 +289,7 @@ struct CalendarView<Title: View, Subtitle: View, Leading: View, Element: View>: 
         @ViewBuilder title: @escaping () -> Title,
         @ViewBuilder subtitle: @escaping ([AppDate]) -> Subtitle,
         @ViewBuilder leading: @escaping ([AppDate], CGFloat) -> Leading,
-        @ViewBuilder element: @escaping (AppDate, [AppEvent]) -> Element
+        @ViewBuilder element: @escaping (AppDate, [AppEvent], Date) -> Element
     ) {
         self.date = date
         self.calendar = calendar
@@ -275,11 +303,25 @@ struct CalendarView<Title: View, Subtitle: View, Leading: View, Element: View>: 
         self.element = element
     }
 
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
+
     var body: some View {
-        let dates = calendar.generateDates(for: date)
+        VStack(alignment: .leading, spacing: 12) {
+            title()
+                .padding(.horizontal, 24)
+
+            monthGrid(for: date)
+        }
+        .transaction { transaction in
+            if reduceMotion { transaction.animation = nil }
+        }
+    }
+
+    private func monthGrid(for month: Date) -> some View {
+        let dates = calendar.generateDates(for: month)
         let spacing = dates.count > Solar.minDates ? 0.5 : 8.5
         let eventsMap = eventStore.generateEventsMap(dates)
-
         let leadingDates = dates.striding(by: Solar.daysInWeek).map(\.self)
         let subtitleDates = dates.prefix(Solar.daysInWeek).map(\.self)
         let columns = Array(
@@ -287,29 +329,19 @@ struct CalendarView<Title: View, Subtitle: View, Leading: View, Element: View>: 
             count: Solar.daysInWeek
         )
 
-        VStack {
-
-            title()
-
-            LazyHStack {
-
-                if showWeekNumbers {
-                    leading(leadingDates, spacing)
-                }
-
-                LazyVGrid(columns: columns, spacing: spacing) {
-
-                    subtitle(subtitleDates)
-
-                    ForEach(dates, id: \.self) { appDate in
-                        element(appDate, eventsMap[appDate.eventsKey] ?? [])
-                    }
-                }
-
+        return HStack(alignment: .top) {
+            if showWeekNumbers {
+                leading(leadingDates, spacing)
             }
-
+            LazyVGrid(columns: columns, spacing: spacing) {
+                subtitle(subtitleDates)
+                ForEach(dates, id: \.eventsKey) { appDate in
+                    element(appDate, eventsMap[appDate.eventsKey] ?? [], month)
+                }
+            }
         }
-
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 24)
     }
 }
 

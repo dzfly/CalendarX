@@ -54,14 +54,24 @@ class CalendarXDelegate: NSObject & NSApplicationDelegate {
             await bootstrap(calendarStore: calendarStore, authorizer: authorizer, updater: updater)
             print("[CalendarX] bootstrap end")
             
+            let resizer = PopoverResizer()
             let rootScreen = RootScreen(updater: updater)
                 .environment(\.authorizer, authorizer)
+                .environment(\.popoverResizer, resizer)
                 .environmentObject(appStore)
                 .environmentObject(menubarStore)
                 .environmentObject(calendarStore)
                 .environmentObject(router)
                 .environmentObject(dialog)
             let popover = MenubarPopover(router, rootScreen: rootScreen)
+            popover.contentSize = CGSize(
+                width: .mainWidth,
+                height: calendarPopoverHeight(date: Date(), firstWeekday: calendarStore.weekday.rawValue)
+            )
+            resizer.apply = { [weak popover] height in
+                guard let popover, abs(popover.contentSize.height - height) > 1 else { return }
+                popover.contentSize.height = height
+            }
             
             print("[CalendarX] creating MenubarController")
             menubarController = MenubarController(appStore: appStore, menubarStore: menubarStore, popover: popover, updater: updater)
@@ -74,9 +84,14 @@ class CalendarXDelegate: NSObject & NSApplicationDelegate {
 extension CalendarXDelegate {
     
     private func bootstrap(calendarStore: CalendarStore, authorizer: Authorizer, updater: Updater) async {
+        HolidayService.shared.reloadCached()
         await resolveEventsAuthorization(authorizer: authorizer, calendarStore: calendarStore)
         resolveNotificationsAuthorization(authorizer: authorizer, updater: updater)
-        Task { await HolidayService.shared.refreshIfNeeded() }
+        Task {
+            if await HolidayService.shared.refreshIfNeeded() {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
+        }
     }
     
     private func resolveEventsAuthorization(authorizer: Authorizer, calendarStore: CalendarStore) async {

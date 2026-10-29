@@ -191,8 +191,7 @@ extension MenubarController {
         menu.addItem(quitItem)
 
         guard let button = menubarButton else { return }
-        let origin = NSPoint(x: 0, y: button.bounds.height + 5)
-        menu.popUp(positioning: nil, at: origin, in: button)
+        menu.popUp(positioning: settingsItem, at: .zero, in: button)
     }
     
     @objc private func checkForUpdates() {

@@ -59,16 +59,18 @@ struct UpdateScreen: View {
                 EmptyView()
             }
             
-            Section {
-                checkRow
-                betaRow
-                Divider()
-                appNameRow
-                versionRow
-                buildRow
-                osRow
-                if let lastCheck = lastCheckDate {
-                    lastCheckRow(date: lastCheck)
+            ScrollView {
+                Section {
+                    checkRow
+                    betaRow
+                    Divider()
+                    appNameRow
+                    versionRow
+                    buildRow
+                    osRow
+                    if let lastCheck = lastCheckDate {
+                        lastCheckRow(date: lastCheck)
+                    }
                 }
             }
 

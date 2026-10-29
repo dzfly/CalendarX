@@ -16,7 +16,7 @@ class MainViewModel: ObservableObject {
 
     @Published
     var date: Date
-    
+
     var calendar: Calendar = .gregorian
 
     init() {
@@ -24,6 +24,7 @@ class MainViewModel: ObservableObject {
         interval = Date().timeIntervalSince1970
         NotificationCenter.default
             .publisher(for: .EKEventStoreChanged)
+            .merge(with: NotificationCenter.default.publisher(for: HolidayService.didUpdate))
             .map { _ in Date().timeIntervalSince1970 }
             .assign(to: &$interval)
 

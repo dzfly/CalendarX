@@ -11,10 +11,12 @@ extension LargeWidget {
         }
 
         func getSnapshot(for configuration: Intent, in context: Context, completion: @escaping (Entry) -> Void) {
+            HolidayService.shared.reloadCached()
             completion(.init(configuration: configuration))
         }
 
         func getTimeline(for configuration: Intent, in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
+            HolidayService.shared.reloadCached()
             let date = Date()
 
             if #available(macOSApplicationExtension 14.0, *), date.canUpdateDate {

@@ -59,8 +59,9 @@ extension CalendarScreen {
         SettingsPickerRow(
             title: L10n.Calendar.startWeekOn,
             items: AppWeekday.allCases,
-            selection: calendarStore.$weekday
-        ) { Text($0.symbol(locale: locale)) }
+            selection: calendarStore.$weekday,
+            itemLabel: { Text($0.symbol(locale: locale)) }
+        )
     }
 
     @ViewBuilder

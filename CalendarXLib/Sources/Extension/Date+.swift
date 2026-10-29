@@ -52,7 +52,7 @@ extension Date {
             return Calendar.gregorian.component(.year, from: self)
         }
         set {
-            guard newValue > 0 else { return }
+            guard newValue > 0, newValue != year else { return }
             added(component: .year, value: newValue - year)
         }
     }
@@ -62,7 +62,7 @@ extension Date {
             return Calendar.gregorian.component(.month, from: self)
         }
         set {
-            guard newValue > 0 else { return }
+            guard newValue > 0, newValue != month else { return }
             added(component: .month, value: newValue - month)
         }
     }

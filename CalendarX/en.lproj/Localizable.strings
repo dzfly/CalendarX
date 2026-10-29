@@ -24,6 +24,7 @@
 
 "appearance.accentColor" = "Accent color";
 "appearance.backgroundColor" = "Background color";
+"appearance.liquidGlass" = "Liquid Glass dropdowns";
 
 "alert.exit" = "Exit";
 "alert.notifications" = "Notifications";

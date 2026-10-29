@@ -38,6 +38,7 @@ public enum L10n {
     public enum Appearance {
         public static let accentColor = "appearance.accentColor".l10nKey
         public static let backgroundColor = "appearance.backgroundColor".l10nKey
+        public static let liquidGlass = "appearance.liquidGlass".l10nKey
     }
 
     @MainActor

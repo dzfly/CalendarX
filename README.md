@@ -20,7 +20,7 @@ A lightweight macOS app for displaying calendar and time
 - [x] SwiftUI / Async / Await
 
 ## Compatibility
-- Requires **macOS 11.0** or later
+- Requires **macOS 12.0** or later
 
 ## Changelogs
 - [简体中文](changelogs/CHANGELOG_SC.md)
