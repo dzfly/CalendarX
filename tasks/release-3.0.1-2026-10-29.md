@@ -12,7 +12,7 @@
 - [x] 更新主应用和扩展版本为 3.0.1，构建号设为 73。
 - [x] 完成 Release 通用构建和代码签名检查。
 - [x] 打包 DMG，并生成和校验 Sparkle EdDSA 签名。
-- [ ] 发布 GitHub Release v3.0.1。
+- [x] 发布 GitHub Release v3.0.1。
 - [ ] 更新自动更新源并核对远程附件及 appcast。
 
 ## 发布边界
@@ -36,3 +36,11 @@
 - SHA-256：`8923e805776425f6a3b738c0bb31677fdc0744768f4f83d9d5a38544e9770eac`。
 - DMG 代码签名、镜像校验、Sparkle EdDSA 验签均通过。
 - 只读挂载后确认应用为 `3.0.1 (73)`，包含 Applications 安装快捷入口。
+
+## 在线发布验证
+
+- Release：`https://github.com/dzfly/CalendarX/releases/tag/v3.0.1`，正式发布。
+- 标签提交：`f482cb6c29b991c3fbd6849bd7c51597d67682f1`。
+- 下载：`https://github.com/dzfly/CalendarX/releases/download/v3.0.1/CalendarX.dmg`。
+- 从公开下载地址取回 DMG，大小和 SHA-256 与本地安装包一致。
+- 自动更新条目已完成 XML 检查，构建号、版本、最低系统、下载大小和签名均与安装包匹配。
