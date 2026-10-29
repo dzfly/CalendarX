@@ -153,6 +153,16 @@ final class AppMenuControl: NSView {
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        needsDisplay = true
+    }
+
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties()
+        needsDisplay = true
+    }
+
     override func mouseDown(with event: NSEvent) {}
 
     override func mouseUp(with event: NSEvent) {
@@ -176,7 +186,10 @@ final class AppMenuControl: NSView {
             width: min(size.width, bounds.width),
             height: size.height
         )
-        text.draw(in: rect, withAttributes: attributes)
+        let alignedRect = backingAlignedRect(rect, options: [
+            .alignMinXNearest, .alignMinYNearest, .alignWidthOutward, .alignHeightOutward
+        ])
+        text.draw(in: alignedRect, withAttributes: attributes)
     }
 
     private func showMenu() {

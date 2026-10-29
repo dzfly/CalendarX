@@ -14,6 +14,9 @@ struct Appearance: @preconcurrency Codable {
 
     static let `default`: Self = .init()
 
+    // Less saturated red improves fine text contrast on external displays.
+    static let defaultAccentColor = Color(lightHex: "#C43C3C", darkHex: "#FF7770")
+
     init() {
         lightAccent = Bundle.defaultLightAccent
         lightBackground = Bundle.defaultLightBackground

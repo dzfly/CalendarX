@@ -20,7 +20,7 @@ class AppStore: ObservableObject {
 
 
 extension AppStore {
-    var accentColor: Color { Appearance.default.accentColor }
+    var accentColor: Color { Appearance.defaultAccentColor }
     var backgroundColor: Color { Appearance.default.backgroundColor }
 
     var colorScheme: ColorScheme? { theme.colorScheme }

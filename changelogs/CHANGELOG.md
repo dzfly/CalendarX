@@ -1,3 +1,12 @@
+## 3.0.1 - 2026-10-29
+
+### Changed
+
+- Adjust red accent colors for light and dark themes to improve small text contrast.
+- Align month and year titles to physical pixels and redraw when display properties change.
+
+---
+
 ## 2.3.8 beta 1 - 2025-04-15
 
 ### Fixed
