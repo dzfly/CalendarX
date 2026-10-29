@@ -13,7 +13,7 @@
 - [x] 完成 Release 通用构建和代码签名检查。
 - [x] 打包 DMG，并生成和校验 Sparkle EdDSA 签名。
 - [x] 发布 GitHub Release v3.0.1。
-- [ ] 更新自动更新源并核对远程附件及 appcast。
+- [x] 更新自动更新源并核对远程附件及 appcast。
 
 ## 发布边界
 
@@ -44,3 +44,5 @@
 - 下载：`https://github.com/dzfly/CalendarX/releases/download/v3.0.1/CalendarX.dmg`。
 - 从公开下载地址取回 DMG，大小和 SHA-256 与本地安装包一致。
 - 自动更新条目已完成 XML 检查，构建号、版本、最低系统、下载大小和签名均与安装包匹配。
+- 已从应用配置的公开 appcast URL 读取线上条目，确认 `3.0.1 (73)`、最低 macOS 12.0、附件地址和大小正确；使用线上签名对公开下载包验签通过。
+- GitHub latest 指向正式版 `v3.0.1`；旧版 Release 和更新条目保留。
