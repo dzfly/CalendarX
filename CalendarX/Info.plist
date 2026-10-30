@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppVersionName</key>
-	<string>3.0.1</string>
+	<string>3.0.2</string>
 	<key>HolidayAppGroupIdentifier</key>
 	<string>$(DEVELOPMENT_TEAM).com.little.calendarx</string>
 	<key>NSAppTransportSecurity</key>

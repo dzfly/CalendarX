@@ -46,6 +46,9 @@ struct RootScreen: View {
         .envColorScheme(appStore.colorScheme)
         .onChange(of: appStore.locale, notification: NSLocale.currentLocaleDidChangeNotification)
         .onAppear { syncPopoverHeight() }
+        .onReceive(NotificationCenter.default.publisher(for: .menubarPopoverWillShow)) { _ in
+            mainVM.date = Date()
+        }
         .onReceive(router.$path.receive(on: RunLoop.main)) { _ in syncPopoverHeight() }
         .onReceive(mainVM.$date.receive(on: RunLoop.main)) { _ in syncPopoverHeight() }
     }
@@ -76,7 +79,7 @@ extension RootScreen {
 
     private var panelFill: Color {
         if #available(macOS 26, *) {
-            appStore.backgroundColor.opacity(0.6)
+            appStore.backgroundColor.opacity(0.5)
         } else {
             appStore.backgroundColor
         }

@@ -39,6 +39,7 @@ class MenubarPopover: NSPopover {
     }
 
     func show(_ button: NSStatusBarButton, screen: Router.Screen) {
+        NotificationCenter.default.post(name: .menubarPopoverWillShow, object: self)
         router.set(screen)
         if case .calendar = screen {} else {
             contentSize.height = .mainHeight

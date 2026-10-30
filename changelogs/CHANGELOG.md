@@ -1,3 +1,13 @@
+## 3.0.2 - 2026-10-30
+
+### Changed
+
+- Increase menu bar calendar panel transparency on macOS 26 and later.
+- Return to the current month whenever the menu bar calendar panel opens.
+- Brighten the dark theme red accent to improve text contrast on translucent backgrounds.
+
+---
+
 ## 3.0.1 - 2026-10-29
 
 ### Changed

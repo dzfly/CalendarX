@@ -127,6 +127,7 @@ extension Color {
 }
 
 extension Notification.Name {
+    public static let menubarPopoverWillShow = Notification.Name("menubarPopoverWillShow")
     public static let popoverWillCloseManually = Notification.Name("popoverWillCloseManually")
     public static let titleStyleDidChanged = Notification.Name("titleStyleDidChanged")
 }
