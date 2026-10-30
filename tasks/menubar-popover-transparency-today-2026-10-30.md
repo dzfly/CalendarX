@@ -25,3 +25,8 @@
 - Debug 主应用构建成功：`xcodebuild -project CalendarX.xcodeproj -scheme CalendarX -configuration Debug -derivedDataPath /tmp/CalendarX-DerivedData CODE_SIGNING_ALLOWED=NO build`。
 - `git diff --check` 通过。
 - 修改的 Swift 文件有效行数均低于 300：`RootScreen.swift` 177、`MenubarPopover.swift` 93、`Constant.swift` 139。
+
+## 发布状态
+
+- 用户运行 Debug 后明确要求发布，本次修改已随 `v3.0.2 (74)` 提交并发布。
+- Release、安装包和线上更新验证见 `tasks/release-3.0.2-2026-10-30.md`；工具未获取新版实屏截图。
