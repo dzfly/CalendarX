@@ -1,3 +1,12 @@
+## 3.0.3 - 2026-11-05
+
+### Fixed
+
+- Keep the menu bar calendar's dark background consistent when reopening it.
+- Keep the month and year controls in place when changing months.
+
+---
+
 ## 3.0.2 - 2026-10-30
 
 ### Changed

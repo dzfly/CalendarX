@@ -17,9 +17,12 @@ class MenubarPopover: NSPopover {
 
     private let router: Router
 
-    init<Content>(_ router: Router, rootScreen: Content) where Content: View {
+    private let appStore: AppStore
+
+    init<Content>(_ router: Router, appStore: AppStore, rootScreen: Content) where Content: View {
 
         self.router = router
+        self.appStore = appStore
         super.init()
         contentViewController = NSHostingController(rootView: rootScreen)
         contentSize = .init(width: .mainWidth, height: .mainHeight)
@@ -45,6 +48,9 @@ class MenubarPopover: NSPopover {
             contentSize.height = .mainHeight
         }
         show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        if #available(macOS 26.0, *) {
+            Self.applyAppearance(to: contentViewController?.view.window, colorScheme: appStore.colorScheme)
+        }
         revealSystemGlass()
         contentViewController?.view.window?.becomeKey()
         startEventMonitor()
@@ -76,6 +82,17 @@ extension MenubarPopover {
 }
 
 extension MenubarPopover {
+
+    static func applyAppearance(to window: NSWindow?, colorScheme: ColorScheme?) {
+        guard let window else { return }
+        let name: NSAppearance.Name = switch colorScheme {
+        case .dark: .darkAqua
+        case .light: .aqua
+        default:
+            NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .darkAqua : .aqua
+        }
+        window.appearance = NSAppearance(named: name)
+    }
 
     private func revealSystemGlass() {
         guard #available(macOS 26.0, *) else { return }

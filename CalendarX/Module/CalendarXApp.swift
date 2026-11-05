@@ -63,7 +63,7 @@ class CalendarXDelegate: NSObject & NSApplicationDelegate {
                 .environmentObject(calendarStore)
                 .environmentObject(router)
                 .environmentObject(dialog)
-            let popover = MenubarPopover(router, rootScreen: rootScreen)
+            let popover = MenubarPopover(router, appStore: appStore, rootScreen: rootScreen)
             popover.contentSize = CGSize(
                 width: .mainWidth,
                 height: calendarPopoverHeight(date: Date(), firstWeekday: calendarStore.weekday.rawValue)

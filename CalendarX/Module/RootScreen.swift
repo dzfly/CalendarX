@@ -199,13 +199,6 @@ private final class PopoverAppearanceView: NSView {
     }
 
     func apply() {
-        guard let window else { return }
-        let name: NSAppearance.Name = switch colorScheme {
-        case .dark: .darkAqua
-        case .light: .aqua
-        default:
-            NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .darkAqua : .aqua
-        }
-        window.appearance = NSAppearance(named: name)
+        MenubarPopover.applyAppearance(to: window, colorScheme: colorScheme)
     }
 }

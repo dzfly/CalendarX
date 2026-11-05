@@ -58,6 +58,7 @@ struct MainScreen: View {
         )
         .padding(.top, 16)
         .padding(.bottom, 20)
+        .frame(maxHeight: .infinity, alignment: .top)
         .transition(.asymmetric(
             insertion: .move(edge: .trailing),
             removal: .move(edge: .leading)

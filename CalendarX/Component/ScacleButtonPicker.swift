@@ -146,8 +146,7 @@ final class AppMenuControl: NSView {
     private(set) var isMenuOpen = false
 
     override var intrinsicContentSize: NSSize {
-        let title = currentTitle as NSString
-        let width = title.size(withAttributes: [.font: textFont]).width
+        let width = titles.map { ($0 as NSString).size(withAttributes: [.font: textFont]).width }.max() ?? 0
         return NSSize(width: ceil(width) + 18, height: 30)
     }
 
