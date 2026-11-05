@@ -10,23 +10,27 @@ private struct MockHolidayResponse: Sendable {
 private final class HolidayRequestState: @unchecked Sendable {
     private let lock = NSLock()
     private var responses: [Int: MockHolidayResponse] = [:]
-    private var requestCount = 0
+    private var urlResponses: [URL: MockHolidayResponse] = [:]
+    private var requests: [URL] = []
 
-    func configure(_ responses: [Int: MockHolidayResponse]) {
+    func configure(_ responses: [Int: MockHolidayResponse], urlResponses: [URL: MockHolidayResponse]) {
         lock.withLock {
             self.responses = responses
-            requestCount = 0
+            self.urlResponses = urlResponses
+            requests = []
         }
     }
 
-    func response(for year: Int) -> MockHolidayResponse? {
+    func response(for url: URL) -> MockHolidayResponse? {
         lock.withLock {
-            requestCount += 1
-            return responses[year]
+            requests.append(url)
+            guard let year = Int(url.deletingPathExtension().lastPathComponent) else { return nil }
+            return urlResponses[url] ?? responses[year]
         }
     }
 
-    var count: Int { lock.withLock { requestCount } }
+    var count: Int { lock.withLock { requests.count } }
+    var requestedURLs: [URL] { lock.withLock { requests } }
 }
 
 private final class HolidayURLProtocol: URLProtocol, @unchecked Sendable {
@@ -37,8 +41,7 @@ private final class HolidayURLProtocol: URLProtocol, @unchecked Sendable {
 
     override func startLoading() {
         guard let url = request.url,
-              let year = Int(url.deletingPathExtension().lastPathComponent),
-              let mock = Self.state.response(for: year) else {
+              let mock = Self.state.response(for: url) else {
             client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet))
             return
         }
@@ -73,12 +76,31 @@ final class HolidayServiceTests: XCTestCase {
         return MockHolidayResponse(status: status, data: data)
     }
 
+    private func emptyResponse(year: Int) throws -> MockHolidayResponse {
+        let data = try JSONSerialization.data(withJSONObject: ["year": year, "days": []])
+        return MockHolidayResponse(status: 200, data: data)
+    }
+
+    private func primaryURL(_ year: Int) -> URL {
+        URL(string: "https://cdn.jsdelivr.net/gh/NateScarlet/holiday-cn@master/\(year).json")!
+    }
+
+    private func fallbackURL(_ year: Int) -> URL {
+        URL(string: "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/\(year).json")!
+    }
+
+    private func localDate(year: Int, month: Int, day: Int, hour: Int = 12, minute: Int = 0) -> Date {
+        Calendar.current.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
+    }
+
     private func withService(
         responses: [Int: MockHolidayResponse] = [:],
+        urlResponses: [URL: MockHolidayResponse] = [:],
+        now: Date? = nil,
         writable: Bool = true,
         test: (HolidayService, UserDefaults, URL) async throws -> Void
     ) async throws {
-        HolidayURLProtocol.state.configure(responses)
+        HolidayURLProtocol.state.configure(responses, urlResponses: urlResponses)
         let suite = "CalendarX.HolidayTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -87,7 +109,7 @@ final class HolidayServiceTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [HolidayURLProtocol.self]
         let session = URLSession(configuration: configuration)
-        let service = HolidayService(session: session, defaults: defaults, cacheFileURL: url)
+        let service = HolidayService(session: session, defaults: defaults, cacheFileURL: url, clock: { now ?? Date() })
         defer {
             session.invalidateAndCancel()
             defaults.removePersistentDomain(forName: suite)
@@ -113,6 +135,7 @@ final class HolidayServiceTests: XCTestCase {
             XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, previous)
             XCTAssertEqual(try Data(contentsOf: url), data)
             XCTAssertEqual(counter.value, 0)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(year), fallbackURL(year), primaryURL(year + 1), fallbackURL(year + 1)])
         }
     }
 
@@ -146,11 +169,186 @@ final class HolidayServiceTests: XCTestCase {
     }
 
     func testRecentSuccessSkipsNetwork() async throws {
-        try await withService { service, defaults, _ in
+        try await withService { service, defaults, url in
+            let cached = [String(year + 1): ["0101": Tiaoxiu.xiu]]
+            try JSONEncoder().encode(cached).write(to: url)
             defaults.set(Date(), forKey: lastFetchKey)
             let refreshed = await service.refreshIfNeeded()
             XCTAssertFalse(refreshed)
             XCTAssertEqual(HolidayURLProtocol.state.count, 0)
+        }
+    }
+
+    func testMissingNextYearRefreshesDuringNovemberOrDecember() async throws {
+        let testYear = 2030
+        for month in [11, 12] {
+            let now = localDate(year: testYear, month: month, day: 1)
+            try await withService(responses: [testYear + 1: try response(year: testYear + 1)], now: now) { service, defaults, url in
+                let previous = now.addingTimeInterval(-60)
+                defaults.set(previous, forKey: lastFetchKey)
+                try JSONEncoder().encode([String(testYear): ["0101": Tiaoxiu.ban]]).write(to: url)
+                let counter = UpdateCounter()
+                let observer = NotificationCenter.default.addObserver(forName: HolidayService.didUpdate, object: nil, queue: nil) { _ in counter.increment() }
+                defer { NotificationCenter.default.removeObserver(observer) }
+
+                let refreshed = await service.refreshIfNeeded()
+                XCTAssertTrue(refreshed)
+                XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1)])
+                XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, previous)
+                guard refreshed else { return }
+                let saved = try JSONDecoder().decode([String: [String: Tiaoxiu]].self, from: Data(contentsOf: url))
+                XCTAssertEqual(saved[String(testYear)]?["0101"], .ban)
+                XCTAssertEqual(saved[String(testYear + 1)]?["0101"], .xiu)
+                let nextNewYear = Calendar.gregorian.date(from: DateComponents(year: testYear + 1, month: 1, day: 1))!
+                XCTAssertEqual(FestivalStore().tiaoxiu(date: nextNewYear), .xiu)
+                XCTAssertEqual(counter.value, 1)
+
+                let secondRefresh = await service.refreshIfNeeded()
+                XCTAssertFalse(secondRefresh)
+                XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1)])
+                XCTAssertEqual(counter.value, 1)
+            }
+        }
+    }
+
+    func testMissingNextYearFailureRetriesOnNextStartup() async throws {
+        let testYear = 2030
+        let now = localDate(year: testYear, month: 12, day: 31, hour: 23, minute: 59)
+        try await withService(now: now) { service, defaults, url in
+            let previous = now.addingTimeInterval(-60)
+            defaults.set(previous, forKey: lastFetchKey)
+            let cached = try JSONEncoder().encode([String(testYear): ["0101": Tiaoxiu.ban]])
+            try cached.write(to: url)
+
+            let firstRefresh = await service.refreshIfNeeded()
+            XCTAssertFalse(firstRefresh)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1), fallbackURL(testYear + 1)])
+            XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, previous)
+            XCTAssertEqual(try Data(contentsOf: url), cached)
+
+            let secondRefresh = await service.refreshIfNeeded()
+            XCTAssertFalse(secondRefresh)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1), fallbackURL(testYear + 1), primaryURL(testYear + 1), fallbackURL(testYear + 1)])
+        }
+    }
+
+    func testOctoberAndJanuaryRespectNormalRefreshInterval() async throws {
+        let dates = [
+            localDate(year: 2030, month: 10, day: 31, hour: 23, minute: 59),
+            localDate(year: 2031, month: 1, day: 1, hour: 0, minute: 1)
+        ]
+        for now in dates {
+            try await withService(now: now) { service, defaults, url in
+                let currentYear = Calendar.current.component(.year, from: now)
+                let cached = [String(currentYear): ["0101": Tiaoxiu.xiu]]
+                try JSONEncoder().encode(cached).write(to: url)
+                defaults.set(now.addingTimeInterval(-60), forKey: lastFetchKey)
+                let refreshed = await service.refreshIfNeeded()
+                XCTAssertFalse(refreshed)
+                XCTAssertEqual(HolidayURLProtocol.state.count, 0)
+            }
+        }
+    }
+
+    func testEmptyNextYearCacheUsesFallbackAtStartOfNovember() async throws {
+        let testYear = 2030
+        let now = localDate(year: testYear, month: 11, day: 1, hour: 0, minute: 1)
+        try await withService(
+            urlResponses: [primaryURL(testYear + 1): try emptyResponse(year: testYear + 1), fallbackURL(testYear + 1): try response(year: testYear + 1)],
+            now: now
+        ) { service, defaults, url in
+            let cached: [String: [String: Tiaoxiu]] = [String(testYear + 1): [:]]
+            try JSONEncoder().encode(cached).write(to: url)
+            let previous = now.addingTimeInterval(-60)
+            defaults.set(previous, forKey: lastFetchKey)
+            let refreshed = await service.refreshIfNeeded()
+            XCTAssertTrue(refreshed)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1), fallbackURL(testYear + 1)])
+            XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, previous)
+            let saved = try JSONDecoder().decode([String: [String: Tiaoxiu]].self, from: Data(contentsOf: url))
+            XCTAssertEqual(saved[String(testYear + 1)]?["0101"], .xiu)
+        }
+    }
+
+    func testNextYearCachedResumesNormal24HourRefresh() async throws {
+        let testYear = 2030
+        let now = localDate(year: testYear, month: 11, day: 15)
+        try await withService(responses: [testYear: try response(year: testYear), testYear + 1: try response(year: testYear + 1)], now: now) { service, defaults, url in
+            let cached = [String(testYear + 1): ["0101": Tiaoxiu.xiu]]
+            try JSONEncoder().encode(cached).write(to: url)
+            defaults.set(now.addingTimeInterval(-60), forKey: lastFetchKey)
+            let earlyRefresh = await service.refreshIfNeeded()
+            XCTAssertFalse(earlyRefresh)
+            XCTAssertEqual(HolidayURLProtocol.state.count, 0)
+
+            defaults.set(now.addingTimeInterval(-86401), forKey: lastFetchKey)
+            let regularRefresh = await service.refreshIfNeeded()
+            XCTAssertTrue(regularRefresh)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear), primaryURL(testYear + 1)])
+            XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, now)
+        }
+    }
+
+    func testYearEndCacheWriteFailureDoesNotStopNextStartup() async throws {
+        let testYear = 2030
+        let now = localDate(year: testYear, month: 11, day: 1)
+        try await withService(responses: [testYear + 1: try response(year: testYear + 1)], now: now, writable: false) { service, defaults, _ in
+            let previous = now.addingTimeInterval(-60)
+            defaults.set(previous, forKey: lastFetchKey)
+            let firstRefresh = await service.refreshIfNeeded()
+            let secondRefresh = await service.refreshIfNeeded()
+            XCTAssertFalse(firstRefresh)
+            XCTAssertFalse(secondRefresh)
+            XCTAssertEqual(defaults.object(forKey: lastFetchKey) as? Date, previous)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(testYear + 1), primaryURL(testYear + 1)])
+        }
+    }
+
+    func testPrimaryDataDoesNotRequestFallback() async throws {
+        try await withService(responses: [year: try response(year: year), year + 1: try response(year: year + 1)]) { service, _, _ in
+            let refreshed = await service.refreshIfNeeded()
+            XCTAssertTrue(refreshed)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(year), primaryURL(year + 1)])
+        }
+    }
+
+    func testEmptyPrimaryUsesFallbackForThatYear() async throws {
+        try await withService(
+            responses: [year: try response(year: year)],
+            urlResponses: [primaryURL(year + 1): try emptyResponse(year: year + 1), fallbackURL(year + 1): try response(year: year + 1)]
+        ) { service, _, url in
+            let refreshed = await service.refreshIfNeeded()
+            XCTAssertTrue(refreshed)
+            let saved = try JSONDecoder().decode([String: [String: Tiaoxiu]].self, from: Data(contentsOf: url))
+            XCTAssertEqual(saved[String(year + 1)]?["0101"], .xiu)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(year), primaryURL(year + 1), fallbackURL(year + 1)])
+        }
+    }
+
+    func testFailedFallbackIsNotRetriedAndPreservesCachedYear() async throws {
+        try await withService(
+            responses: [year: try response(year: year)],
+            urlResponses: [primaryURL(year + 1): try emptyResponse(year: year + 1), fallbackURL(year + 1): try response(year: year + 1, status: 500)]
+        ) { service, _, url in
+            let cached = [String(year + 1): ["0101": Tiaoxiu.ban]]
+            try JSONEncoder().encode(cached).write(to: url)
+            let refreshed = await service.refreshIfNeeded()
+            XCTAssertTrue(refreshed)
+            let saved = try JSONDecoder().decode([String: [String: Tiaoxiu]].self, from: Data(contentsOf: url))
+            XCTAssertEqual(saved[String(year)]?["0101"], .xiu)
+            XCTAssertEqual(saved[String(year + 1)]?["0101"], .ban)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(year), primaryURL(year + 1), fallbackURL(year + 1)])
+        }
+    }
+
+    func testUnavailablePrimaryUsesFallbackOnce() async throws {
+        try await withService(urlResponses: [fallbackURL(year): try response(year: year)]) { service, _, url in
+            let refreshed = await service.refreshIfNeeded()
+            XCTAssertTrue(refreshed)
+            XCTAssertEqual(HolidayURLProtocol.state.requestedURLs, [primaryURL(year), fallbackURL(year), primaryURL(year + 1), fallbackURL(year + 1)])
+            guard refreshed else { return }
+            let saved = try JSONDecoder().decode([String: [String: Tiaoxiu]].self, from: Data(contentsOf: url))
+            XCTAssertEqual(saved[String(year)]?["0101"], .xiu)
         }
     }
 

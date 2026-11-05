@@ -36,31 +36,45 @@ public final class HolidayService {
     private let defaults: UserDefaults?
     private let cacheFileURL: URL?
     private let fallbackCacheFileURL: URL?
+    private let clock: () -> Date
 
-    init(session: URLSession, defaults: UserDefaults?, cacheFileURL: URL?, fallbackCacheFileURL: URL? = nil) {
+    init(session: URLSession, defaults: UserDefaults?, cacheFileURL: URL?, fallbackCacheFileURL: URL? = nil, clock: @escaping () -> Date = Date.init) {
         self.session = session
         self.defaults = defaults
         self.cacheFileURL = cacheFileURL
         self.fallbackCacheFileURL = fallbackCacheFileURL
+        self.clock = clock
     }
 
     public func refreshIfNeeded() async -> Bool {
-        guard shouldRefresh() else { return false }
-
-        let currentYear = Calendar.current.component(.year, from: Date())
+        let now = clock()
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: now)
+        let regularRefresh = shouldRefresh(at: now)
+        guard regularRefresh || calendar.component(.month, from: now) >= 11 else { return false }
         var merged = loadCached()
+        let nextYearMissing = merged[String(currentYear + 1)]?.isEmpty ?? true
+        guard regularRefresh || nextYearMissing else { return false }
         var didFetch = false
 
-        for year in [currentYear, currentYear + 1] {
-            if let data = await fetchRemote(year: year),
-               let days = convert(data)[String(year)], !days.isEmpty {
-                merged[String(year)] = days
-                didFetch = true
+        let years = regularRefresh ? [currentYear, currentYear + 1] : [currentYear + 1]
+        for year in years {
+            let urls = [
+                "https://cdn.jsdelivr.net/gh/NateScarlet/holiday-cn@master/\(year).json",
+                "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/\(year).json"
+            ]
+            for url in urls {
+                if let data = await fetchRemote(year: year, urlString: url),
+                   let days = convert(data)[String(year)], !days.isEmpty {
+                    merged[String(year)] = days
+                    didFetch = true
+                    break
+                }
             }
         }
 
         guard didFetch, saveToCacheFile(merged) else { return false }
-        defaults?.set(Date(), forKey: lastFetchKey)
+        if regularRefresh { defaults?.set(clock(), forKey: lastFetchKey) }
         FestivalStore.Solar.tiaoxiu = merged
         NotificationCenter.default.post(name: Self.didUpdate, object: nil)
         return true
@@ -79,15 +93,14 @@ public final class HolidayService {
 
     // MARK: - Private
 
-    private func shouldRefresh() -> Bool {
+    private func shouldRefresh(at date: Date) -> Bool {
         guard let last = defaults?.object(forKey: lastFetchKey) as? Date else {
             return true
         }
-        return Date().timeIntervalSince(last) > 86400
+        return date.timeIntervalSince(last) > 86400
     }
 
-    private func fetchRemote(year: Int) async -> HolidayResponse? {
-        let urlString = "https://cdn.jsdelivr.net/gh/NateScarlet/holiday-cn@master/\(year).json"
+    private func fetchRemote(year: Int, urlString: String) async -> HolidayResponse? {
         guard let url = URL(string: urlString) else { return nil }
 
         do {

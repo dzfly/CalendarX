@@ -1,3 +1,12 @@
+## 3.0.5 - 2026-11-05
+
+### Fixed
+
+- Fall back to GitHub when the holiday data source returns no usable data.
+- Fetch missing next-year holiday data at startup from November until it becomes available.
+
+---
+
 ## 3.0.4 - 2026-11-05
 
 ### Changed
