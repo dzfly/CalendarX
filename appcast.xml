@@ -7,6 +7,19 @@
         <language>en</language>
 
         <item>
+            <title>Version 3.0.3</title>
+            <sparkle:releaseNotesLink>https://github.com/dzfly/CalendarX/releases/tag/v3.0.3</sparkle:releaseNotesLink>
+            <pubDate>Thu, 05 Nov 2026 18:08:25 +0800</pubDate>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/dzfly/CalendarX/releases/download/v3.0.3/CalendarX.dmg"
+                       sparkle:version="75"
+                       sparkle:shortVersionString="3.0.3"
+                       length="6554408"
+                       type="application/octet-stream"
+                       sparkle:edSignature="6+rAQwEWb0fd6pI8n1ucwv0mDZ6FWnmsnq6FRTtBWdoqM+eyA/UJoyZAUttAD9aebLM+lfGhgnk+xATNx8roDA==" />
+        </item>
+
+        <item>
             <title>Version 3.0.2</title>
             <sparkle:releaseNotesLink>https://github.com/dzfly/CalendarX/releases/tag/v3.0.2</sparkle:releaseNotesLink>
             <pubDate>Fri, 30 Oct 2026 20:43:58 +0800</pubDate>
