@@ -1,3 +1,11 @@
+## 3.0.4 - 2026-11-05
+
+### Changed
+
+- Sign and notarize the app for distribution outside the Mac App Store.
+
+---
+
 ## 3.0.3 - 2026-11-05
 
 ### Fixed
